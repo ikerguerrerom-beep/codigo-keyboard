@@ -1,0 +1,69 @@
+#include <Keyboard.h>
+
+int last_pin_pressed = -1;
+
+void setup() {
+  for (int i = 0; i <= 11; i++) {
+    pinMode(i, INPUT_PULLUP);
+  }
+  
+  Keyboard.begin();
+  Serial.begin(9600);
+}
+
+void loop() {
+  int current_pressed_pin = -1;
+
+
+  for (int i = 0; i <= 11; i++) {
+    if (digitalRead(i) == LOW) {
+      current_pressed_pin = i;
+      break; 
+    }
+  }
+
+
+  if (current_pressed_pin != -1) {
+
+    if (current_pressed_pin != last_pin_pressed) {
+      delay(5);
+      
+
+      if (digitalRead(current_pressed_pin) == LOW) {
+
+        if (last_pin_pressed != -1) {
+          releaseKey(last_pin_pressed);
+        }
+        
+        pressKey(current_pressed_pin);
+        last_pin_pressed = current_pressed_pin;
+      }
+    }
+  } 
+  else {
+    if (last_pin_pressed != -1) {
+      releaseKey(last_pin_pressed);
+      last_pin_pressed = -1;
+    }
+  }
+}
+
+void pressKey(int pin) {
+  if (pin >= 0 && pin <= 9) {
+    Keyboard.press('0' + pin);
+  } else if (pin == 10) {
+    Keyboard.press(KEY_BACKSPACE);
+  } else if (pin == 11) {
+    Keyboard.press(KEY_RETURN);
+  }
+}
+
+void releaseKey(int pin) {
+  if (pin >= 0 && pin <= 9) {
+    Keyboard.release('0' + pin);
+  } else if (pin == 10) {
+    Keyboard.release(KEY_BACKSPACE);
+  } else if (pin == 11) {
+    Keyboard.release(KEY_RETURN);
+  }
+}
